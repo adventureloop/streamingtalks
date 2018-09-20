@@ -1,0 +1,37 @@
+<html>
+	<head>
+		<title>streamer status panel</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF8">
+		<link rel="stylesheet" type="text/css" href="/css/c3.css">
+	</head>
+	<body onload="init()">
+		<div id="logo" style="height:250px">
+			<img src="images/FREEBSD_Logo_Horiz_Pos_BLACK.png" style="position:absolute; left: 30%; height: 200px"></img>
+		</div>
+
+<script type="text/javascript" src="//bsdstreams-embed.secdn.net/clappr/0.x/clappr.min.js"></script>
+
+<div id="se_video"></div>
+
+<script type="text/javascript">
+var player = new Clappr.Player({
+	source: 'https://bsdstreams-hls.secdn.net/bsdstreams-live/play/268bf/playlist.m3u8',
+	parentId: "#se_video",
+	autoPlay: true ,
+	width: '720',
+	height: '400',
+	plugins: {core: [], playback: []},
+});
+</script>
+		<div id="interfaces" style="height:200px">
+			<div id="eth1" style="width:35%; float:left" >
+				<div class="internal-line" style="height:100px;"></div>
+				<div class="external-line" style="height:100px;"></div>
+			</div>
+		</div>
+		<script src="/d3/d3.v3.js"></script> 
+		<script src="/d3/c3.js"></script>
+
+		<script src="/js/networkstatus.js"> </script>
+	</body>
+</html>
