@@ -1,0 +1,9 @@
+This directory contains the source for the slides given at EuroBSDCon 2018 and
+a render of the final slides. If you just wish to view the slides clone this
+repo and open eurobsdcon2018-streamingtalks.html in a web browser.
+
+The slides incorporate many diagrams written in ascii art, these diagrams must
+be rendered using goat available here: https://github.com/blampe/goat
+
+A python script render.py handles merging the remark.js slide source with
+rendered svg graphics.
