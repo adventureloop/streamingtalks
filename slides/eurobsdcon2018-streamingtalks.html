@@ -1666,84 +1666,6 @@ system is open source.
 - firefox
 
 ---
-## Aside: Whats up with multicast?
-
-    $ cvlc udp://@239.255.42.42:5004
-
-- Something changed between my PoC and building out the final set up.
-- `socat` works so this is probably not FreeBSD's fault
-- whats the different?
-
----
-## Aside: Whats up with multicast?
-
-![Python and Multicast](images/python-multicast.png "Python and Multicast")
-
----
-## Aside: Whats up with multicast?
-
-    #!/usr/bin/env python
-                                                             
-    import time
-    import struct
-    import socket
-    import sys
-                                                                 
-    group = '239.255.42.42'
-    port = 5004
-                                                                 
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.bind(('0.0.0.0', port))
-    s.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
-        socket.inet_aton(group) + socket.INADDR_ANY)
-                                                                 
-    # Loop, printing any data we receive
-    while True:
-        data, sender = s.recvfrom(1500)
-        print (sender, len(data))
-
----
-## Aside: Whats up with multicast?
-
-- truss output, socat and python
-
----
-## Aside: Whats up with multicast?
-
-    $ cat scripts/tracemcast.d 
-    syscall:freebsd:setsockopt:entry 
-    /arg1 == 0 && arg2 == 12/
-    {
-        x = (u_char *)copyin(arg3, arg4);
-        printf("%s\n%x %x %x %x\t%x %x %x %x \n", execname,
-            x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7]);
-        printf("%d %d %d %d\t%d %d %d %d \n", 
-            x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7]);
-    }
-
----
-## Aside: Whats up with multicast?
-
-    $ sudo dtrace -s tracemcast.d
-    dtrace: script 'tracemcast.d' matched 1 probe        
-    CPU     ID                    FUNCTION:NAME
-      1  66627                 setsockopt:entry socat    
-    ef ff 2a 2a     c0 a8 1 2
-    239 255 42 42   192 168 1 2                          
-    
-      2  66627                 setsockopt:entry python3.6
-    ef ff 2a 2a     0 0 0 0
-    239 255 42 42   0 0 0 0
-    
-      2  66627                 setsockopt:entry vlc
-    ef ff 2a 2a     0 0 0 0
-    239 255 42 42   0 0 0 0
-
-AHA! We have to tell `vlc` which interface to use:
-
-    $ cvlc udp://@239.255.42.42:5004 --miface=192.168.1.2
-
----
 # Saving the video feed to a file
 
 recordfeed.sh
@@ -1755,16 +1677,6 @@ recordfeed.sh
 	    ! h264parse \ 
 	    ! mp4mux \
 	    ! filesink location=test.mp4
-
----
-# Capturing a WAV
-
-    gst-launch-1.0 \
-	    autoaudiosrc \
-		! audioconvert \
-		! wavenc \
-		! filesink location="output.wav"
-
 ---
 # Capturing AAC Audio
 
@@ -1787,31 +1699,6 @@ gstreamer audio pipeline
         gst-launch-1.0 fdsrc \
         ! audio/x-raw, format=S16E, channels=1, layout=interleaved, rate=15000 \
         ! autoaudiosink
-
----
-# Image example feed
-
-loop png
-    $ gst-launch-1.0 multifilesrc location="images/hdmiextender-order.png" loop=true index=0 caps="image/png,framerate=\(fraction\)12/1" ! pngdec ! videoconvert ! videorate ! autovideosink
-
-
-loop jpg
-	$ gst-launch-1.0 multifilesrc location="images/lantap.jpg" loop=true index=0 caps="image/jpeg,framerate=\(fraction\)12/1" ! jpegdec ! videoconvert ! videorate ! autovideosink
-
-
-gst-launch-1.0 multifilesrc location="images/lantap.jpg" \
-  ! "image/jpeg,framerate=30/1" \
-  ! jpegparse \
-  ! jpegdec \
-  ! x264enc \
-  ! mpegtsmux \
-  ! udpsink host=192.168.1.2 port=5000
-
----
-# Aside: Adding a Camera
-
-- it does that prgressive jpeg thing, mix it with gst
-
     </textarea>
     <script src="remark-latest.min.js">
     </script>
